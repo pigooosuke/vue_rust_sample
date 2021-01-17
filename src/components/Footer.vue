@@ -51,8 +51,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs } from '@vue/composition-api';
-import { profileMockData } from '@/store/profile';
+import {
+  defineComponent,
+  reactive,
+  toRefs,
+  computed,
+} from '@vue/composition-api';
+import { profileMockData, profileStore } from '@/store/profile';
 
 export default defineComponent({
   setup(prop, context) {
@@ -71,16 +76,18 @@ export default defineComponent({
         },
       ],
       // サインインしているユーザー
-      signInUser: profileMockData,
+      signInUser: computed(() => {
+        return profileStore.profile;
+      }),
     });
-    /* 
+    /*
     メソッド名を指定してコンポーネントのメソッドを呼び出します。
     @param {string} methodName 呼び出すメソッド名
     */
     const handleMethod = (methodName: string) => {
       eval(methodName)();
     };
-    /*     
+    /*
     指定したパスに画面遷移を行います。
     @param {string} path 遷移先のパス
     */
@@ -93,22 +100,23 @@ export default defineComponent({
         () => {},
       );
     };
-    /* 
+    /*
     プロフィール画面に遷移します。
      */
     const profile = () => {
       routerPush('/profile');
     };
-    /* 
+    /*
     共有画面に遷移します。
      */
     const share = () => {
       routerPush('/share');
     };
-    /* 
+    /*
     サインアウトします
      */
     const signOut = () => {
+      profileStore.profile = null;
       routerPush('/sign-in');
     };
     return {

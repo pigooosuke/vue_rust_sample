@@ -1,3 +1,5 @@
+import '@/plugins/composition-api';
+import { reactive } from '@vue/composition-api';
 import { Profile } from '@/store/profile.model';
 
 export const profileMockData: Profile = {
@@ -8,3 +10,5 @@ export const profileMockData: Profile = {
   hasAvatar: false,
   mailAddress: 'namihei@example.com',
 };
+
+export const profileStore = reactive({ profile: null as Profile | null });
