@@ -285,6 +285,7 @@ import {
   computed,
   nextTick,
   toRefs,
+  onUpdated,
 } from '@vue/composition-api';
 import {
   parseDate,
@@ -399,6 +400,16 @@ export default defineComponent({
       disabledEndTime: computed((): boolean => {
         return !state.endDate || !state.startTime;
       }),
+    });
+
+    onUpdated(() => {
+      if (props.type == 'month') {
+        return;
+      }
+      nextTick(() => {
+        //eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        state.calendar!.scrollToTime('7:00');
+      });
     });
 
     const methods = {
