@@ -492,7 +492,7 @@ export default defineComponent({
         state.isOpenEventDialog = true;
 
         // クリックイベントの伝搬を抑止します。
-        //esalint-disable-next-line @typescript-eslint/no-non-null-assertion
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         event!.stopPropagation();
       },
       /**
