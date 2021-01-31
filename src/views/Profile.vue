@@ -16,6 +16,8 @@
             placeholder="画像を選択してください"
             prepend-icon="photo_camera"
             label="アバター"
+            :error-count="Number.MAX_VALUE"
+            :error-messages="avatarErrors"
             @change="saveFileContent"
           />
         </v-col>
@@ -45,22 +47,44 @@
         open-on-hover
       >
         <v-card>
-          <v-card-text>
-            <v-container>
-              <v-row>
-                <v-text-field v-model="newUserName" label="ユーザー名*" />
-              </v-row>
-            </v-container>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer />
-            <v-btn color="blue darken-1" text @click="closeEditUserNameDialog">
-              キャンセル
-            </v-btn>
-            <v-btn color="blue darken-1" text @click="saveUserName">
-              保存する
-            </v-btn>
-          </v-card-actions>
+          <ValidationObserver ref="userNameValidationObserver">
+            <ValidationProvider
+              v-slot="{ errors }"
+              name="ユーザー名"
+              :rules="validationRules.userName"
+            >
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <v-text-field
+                      v-model="newUserName"
+                      label="ユーザー名*"
+                      :error-count="Number.MAX_VALUE"
+                      :error-messages="errors"
+                    />
+                  </v-row>
+                </v-container>
+              </v-card-text>
+            </ValidationProvider>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                color="blue darken-1"
+                text
+                @click="closeEditUserNameDialog"
+              >
+                キャンセル
+              </v-btn>
+              <v-btn
+                color="blue darken-1"
+                text
+                :disabled="userNameSaveDisabled"
+                @click="saveUserName"
+              >
+                保存する
+              </v-btn>
+            </v-card-actions>
+          </ValidationObserver>
         </v-card>
       </v-dialog>
       <v-text-field
@@ -77,22 +101,44 @@
         open-on-hover
       >
         <v-card>
-          <v-card-text>
-            <v-container>
-              <v-row>
-                <v-text-field v-model="newNickname" label="ニックネーム*" />
-              </v-row>
-            </v-container>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer />
-            <v-btn color="blue darken-1" text @click="closeEditNicknameDialog">
-              キャンセル
-            </v-btn>
-            <v-btn color="blue darken-1" text @click="saveNickname">
-              保存する
-            </v-btn>
-          </v-card-actions>
+          <ValidationObserver ref="nicknameValidationObserver">
+            <ValidationProvider
+              v-slot="{ errors }"
+              name="ニックネーム"
+              :rules="validationRules.nickname"
+            >
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <v-text-field
+                      v-model="newNickname"
+                      label="ニックネーム*"
+                      :error-count="Number.MAX_VALUE"
+                      :error-messages="errors"
+                    />
+                  </v-row>
+                </v-container>
+              </v-card-text>
+            </ValidationProvider>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                color="blue darken-1"
+                text
+                @click="closeEditNicknameDialog"
+              >
+                キャンセル
+              </v-btn>
+              <v-btn
+                color="blue darken-1"
+                text
+                :disabled="nicknameSaveDisabled"
+                @click="saveNickname"
+              >
+                保存する
+              </v-btn>
+            </v-card-actions>
+          </ValidationObserver>
         </v-card>
       </v-dialog>
       <v-text-field
@@ -106,13 +152,21 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs } from '@vue/composition-api';
+import {
+  defineComponent,
+  reactive,
+  toRefs,
+  computed,
+  watch,
+  nextTick,
+} from '@vue/composition-api';
 import {
   profileStore,
   updateThemeColor,
   updateUserName,
   updateNickname,
 } from '@/store/profile';
+import { validate, ValidationObserver } from 'vee-validate';
 
 export default defineComponent({
   setup() {
@@ -131,13 +185,94 @@ export default defineComponent({
       isOpenEditUserNameDialog: false,
       // ニックネーム編集ダイアログをオープンするかどうかを示す値です。
       isOpenEditNicknameDialog: false,
+      // アバターのバリデーションエラーです
+      avatarErrors: null as string[] | null,
+
+      userNameValidationObserver: null as InstanceType<
+        typeof ValidationObserver
+      > | null,
+
+      nicknameValidationObserver: null as InstanceType<
+        typeof ValidationObserver
+      > | null,
+      // 新しいユーザー名の保存が無効であるかどうかを示す値です。
+      userNameSaveDisabled: false,
+      // 新しいニックネームの保存が無効であるかどうかを示す値です。
+      nicknameSaveDisabled: false,
+
+      validationRules: computed(() => {
+        return {
+          nickname: {
+            required: true,
+            max: 15,
+          },
+          userName: {
+            required: true,
+            userNameAllowedCharacters: true,
+            max: 15,
+          },
+          avatar: {
+            ext: ['png', 'jpeg', 'bmp'],
+            size: 300,
+          },
+        };
+      }),
     });
+    /**
+     * 新しいユーザー名の保存が無効かどうかを判断します。
+     * 新しいユーザー名の値が変更される度に判定を行います。
+     */
+    watch(
+      () => state.newUserName,
+      () => {
+        nextTick(() => {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          state
+            .userNameValidationObserver!.validate({ silent: true })
+            .then(result => {
+              state.userNameSaveDisabled = !result;
+            });
+        });
+      },
+    );
+    /**
+     * 新しいニックネームの保存が無効かどうかを判断します。
+     * 新しいニックネームの値が変更される度に判定を行います。
+     */
+    watch(
+      () => state.newNickname,
+      () => {
+        nextTick(() => {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          state
+            .nicknameValidationObserver!.validate({ silent: true })
+            .then(result => {
+              state.nicknameSaveDisabled = !result;
+            });
+        });
+      },
+    );
     /**
      * アバターを保存します。
      * @param file アバターの画像ファイル
      */
-    // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-empty-function
-    const saveFileContent = (file: File) => {};
+    const saveFileContent = (file: File) => {
+      state.avatarErrors = null;
+      if (!file) {
+        // ファイル選択ダイアログでキャンセルされた場合などで、
+        // ファイルが選択されていない場合は何もしない。
+        return;
+      }
+      validate(file, state.validationRules.avatar, {
+        name: 'アバター',
+      }).then(result => {
+        if (!result.valid) {
+          state.avatarErrors = result.errors;
+          return;
+        }
+        // バリデーション成功。WebAPIを呼び出してアバター画像を保存する。
+      });
+    };
     /**
      * テーマカラーを保存します。
      */

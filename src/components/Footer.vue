@@ -1,6 +1,14 @@
 <template>
   <v-footer v-if="signInUser" app class="pa-0">
     <v-bottom-navigation grow dark>
+      <span class="display-1"><slot name="foo" :items="items"/></span>
+      <span class="pl-4 display-1">
+        <slot
+          name="bar"
+          :title="items[1].title"
+          :methodName="items[1].methodName"
+        />
+      </span>
       <v-btn class="my-auto" height="56" @click="routerPush('/')">
         <span>home</span>
         <v-icon large>home</v-icon>
@@ -57,7 +65,7 @@ import {
   toRefs,
   computed,
 } from '@vue/composition-api';
-import { profileMockData, profileStore } from '@/store/profile';
+import { profileStore } from '@/store/profile';
 
 export default defineComponent({
   setup(prop, context) {

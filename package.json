@@ -15,6 +15,7 @@
     "core-js": "^3.6.5",
     "material-design-icons-iconfont": "^5.0.1",
     "roboto-fontface": "*",
+    "vee-validate": "^3.4.5",
     "vue": "2.6.11",
     "vue-class-component": "^8.0.0-0",
     "vue-router": "3.4.9",
