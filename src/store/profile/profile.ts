@@ -10,38 +10,57 @@ import { Profile } from '@/store/profile.model';
 import { update } from '@/store/shared-user';
 import axios from 'axios';
 
+const setStorage = (profile: Profile) => {
+  sessionStorage.setItem('profile', JSON.stringify(profile));
+};
+
 @Module({ dynamic: true, store, name: 'profile', namespaced: true })
 class ProfileModule extends VuexModule {
   public profile: Profile | null = null;
 
   // プロフィールを取得
   public get getProfile() {
-    return this.profile;
+    if (this.profile) {
+      return this.profile;
+    }
+    const profile = sessionStorage.getItem('profile');
+    if (profile) {
+      return JSON.parse(profile) as Profile;
+    }
+    return null;
   }
 
   @Mutation
   private updateUserName(userName: string) {
     //eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    this.profile!.userName = userName;
+    const profile = this.profile!;
+    profile.userName = userName;
+    setStorage(profile);
   }
   @Mutation
   private updateNickname(nickname: string) {
     //eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    this.profile!.nickname = nickname;
+    const profile = this.profile!;
+    profile.nickname = nickname;
+    setStorage(profile);
   }
   @Mutation
   private updateThemeColor(themeColor: string) {
     //eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    this.profile!.themeColor = themeColor;
+    const profile = this.profile!;
+    profile.themeColor = themeColor;
+    setStorage(profile);
   }
   @Mutation
   private saveProfile(profile: Profile) {
     //eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.profile = profile;
+    setStorage(profile);
   }
   @Mutation
   public clearProfile() {
     this.profile = null;
+    sessionStorage.removeItem('profile');
   }
 
   @Action
