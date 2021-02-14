@@ -160,12 +160,7 @@ import {
   watch,
   nextTick,
 } from '@vue/composition-api';
-import {
-  profileStore,
-  updateThemeColor,
-  updateUserNameAsync,
-  updateNickname,
-} from '@/store/profile';
+import { profileStore } from '@/store/profile/profile';
 import { validate, ValidationObserver } from 'vee-validate';
 import { ValidationItems } from '@/validation/validation-items';
 
@@ -174,14 +169,14 @@ export default defineComponent({
     const state = reactive({
       // プロフィール
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      profile: profileStore.profile,
+      profile: profileStore.getProfile!,
       // 新しいユーザー名
       newUserName: null as string | null,
       // 新しいニックネーム
       newNickname: null as string | null,
       // 新しいテーマカラー
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      newThemeColor: profileStore.profile!.themeColor,
+      newThemeColor: profileStore.getProfile!.themeColor,
       // ユーザー名編集ダイアログをオープンするかどうかを示す値です。
       isOpenEditUserNameDialog: false,
       // ニックネーム編集ダイアログをオープンするかどうかを示す値です。
@@ -276,7 +271,7 @@ export default defineComponent({
      * テーマカラーを保存します。
      */
     const saveThemeColor = () => {
-      updateThemeColor(state.newThemeColor);
+      profileStore.updateThemeColorAsync(state.newThemeColor);
     };
     /**
      * ユーザー名の編集を開始します。
@@ -298,7 +293,7 @@ export default defineComponent({
     const saveUserName = async () => {
       try {
         if (state.newUserName) {
-          await updateUserNameAsync(state.newUserName);
+          await profileStore.updateUserNameAsync(state.newUserName);
         }
         state.isOpenEditUserNameDialog = false;
       } catch (error) {
@@ -324,7 +319,7 @@ export default defineComponent({
      */
     const saveNickname = () => {
       if (state.newNickname) {
-        updateNickname(state.newNickname);
+        profileStore.updateNicknameAsync(state.newNickname);
       }
       state.isOpenEditNicknameDialog = false;
     };

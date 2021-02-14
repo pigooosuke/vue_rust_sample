@@ -291,9 +291,9 @@ import {
   parseDate,
   parseTimestamp,
 } from 'vuetify/lib/components/VCalendar/util/timestamp';
+import { profileStore } from '@/store/profile/profile';
 import { calendarEventStore, add, update } from '@/store/calendar-event';
 import { sharedUserStore, getThemeColor } from '@/store/shared-user';
-import { profileStore } from '@/store/profile';
 import { CalendarTimestamp, CalendarEvent } from 'vuetify';
 import {
   CalendarEventDetail,

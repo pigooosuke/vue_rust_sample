@@ -5,7 +5,7 @@ import {
   CalendarEventTodayDetail,
   NewCalendarEvent,
 } from '@/store/calendar-event.model';
-import { profileStore } from '@/store/profile';
+import { profileStore } from '@/store/profile/profile';
 
 export const calendarEventMockData: CalendarEventDetail[] = [
   {
@@ -140,7 +140,7 @@ const generateUuidMock = () => {
 export const add = (newCalendarEvent: NewCalendarEvent) => {
   newCalendarEvent.id = generateUuidMock();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  newCalendarEvent.userId = profileStore.profile!.userId;
+  newCalendarEvent.userId = profileStore.getProfile!.userId;
   calendarEventStore.calendarEvents.push(
     newCalendarEvent as CalendarEventDetail,
   );
