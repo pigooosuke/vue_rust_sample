@@ -113,6 +113,7 @@ export default defineComponent({
     };
 
     return {
+      ...toRefs(state),
       ...toRefs(sharedEventState),
       getEventColor,
     };

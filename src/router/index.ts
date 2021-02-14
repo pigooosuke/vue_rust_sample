@@ -6,6 +6,7 @@ import ShareComponent from '@/views/Share.vue';
 import SignInComponent from '@/views/SignIn.vue';
 import NotFoundComponent from '@/views/NotFound.vue';
 import { calendarRoutes } from '@/router/calendar/calendar';
+import { profileStore } from '@/store/profile/profile';
 
 Vue.use(VueRouter);
 
@@ -54,6 +55,18 @@ const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  if (to.path === '/sign-in') {
+    next();
+    return;
+  }
+  if (profileStore.getProfile) {
+    next();
+    return;
+  }
+  next('/sign-in');
 });
 
 router.afterEach(to => {
